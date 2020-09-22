@@ -368,7 +368,8 @@ namespace Mirror.Weaver
             worker.Append(labelEmptyArray);
 
             // List<T> list = new List<T>();
-            worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.ListConstructorReference.MakeHostInstanceGeneric(genericInstance)));
+            MethodReference genericConstructorRef = WeaverTypes.ImportConstructor(typeof(List<>));
+            worker.Append(worker.Create(OpCodes.Newobj, genericConstructorRef.MakeHostInstanceGeneric(genericInstance)));
             worker.Append(worker.Create(OpCodes.Stloc_1));
 
             // loop through array and deserialize each element
@@ -386,7 +387,8 @@ namespace Mirror.Weaver
             Instruction labelBody = worker.Create(OpCodes.Nop);
             worker.Append(labelBody);
 
-            MethodReference addItem = WeaverTypes.ListAddReference.MakeHostInstanceGeneric(genericInstance);
+            MethodReference listAddRef = WeaverTypes.Import(typeof(List<>), nameof(List<object>.Add));
+            MethodReference addItem = listAddRef.MakeHostInstanceGeneric(genericInstance);
 
             // list.Add(reader.ReadT());
             worker.Append(worker.Create(OpCodes.Ldloc_1)); // list
